@@ -1,0 +1,25 @@
+name: Build and push the image in ecr
+on: [push]
+jobs:
+    Build:
+        name: build image
+        runs-on: ubuntu-latest
+        
+        steps:
+            -   name: check-out the code
+                uses: actions/checkout@v2
+            -   name: aws-configure
+                uses: aws-actions/configure-aws-credentials@v1
+                with:
+                    aws-access-key-id: ${{secrets.AWS_ACCECSS_KEY_ID}}
+                    aws-secret-access-key-id: ${{secrets.AWS_SECRET_ACCESS_KEY_ID}}
+                    aws_region: us-east-1
+            -   name: build,tag,and push the image to ecr
+                env:
+                    ECR_REGISTRY: ${{steps.login-ecr.outputs.registry}}
+                    ECR_REPOSITORY: github-sample
+                    IMAGE_TAG: sample_image
+                run: |
+                    docker build $ECR_REGISTRY/ECR_REPOSITORY:$IMAGE_TAG .
+                    docker push $ECR_REGISTRY/ECR_REPOSITORY:$IMAGE_TAG 
+
